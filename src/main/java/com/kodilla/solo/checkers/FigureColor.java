@@ -1,4 +1,4 @@
-package kodilla.soloproject.backend;
+package com.kodilla.solo.checkers;
 
 public enum FigureColor {
     BLACK,
