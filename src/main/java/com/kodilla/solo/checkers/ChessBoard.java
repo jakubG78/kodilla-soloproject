@@ -1,5 +1,7 @@
 package com.kodilla.solo.checkers;
 
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+
 import java.util.ArrayList;
 
 import static java.lang.Math.abs;
@@ -88,7 +90,7 @@ public class ChessBoard {
     }
 
     private void removeFigureInTheMiddle(int x1, int y1, int x2, int y2) {
-        System.out.println("removing");
+        setFigure((x1 + x2) / 2, (y1 + y2) / 2, new NoneFigure());
     }
 
     private boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
@@ -99,12 +101,12 @@ public class ChessBoard {
     }
 
     private boolean isThereFigureToHit(int x1, int y1, int x2, int y2) {
-        Figure middleFigure = getFigure((x1 + x2) / 2, (y1 + y2) / 2);
+        Figure hitFigure = getFigure((x1 + x2) / 2, (y1 + y2) / 2);
         if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK)) {
-            if (middleFigure.equals(FigureColor.WHITE)) return true;
+            if (hitFigure.getColor().equals(FigureColor.WHITE)) return true;
         } else {
             if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE)) {
-                if (middleFigure.equals(FigureColor.BLACK)) return true;
+                if (hitFigure.getColor().equals(FigureColor.BLACK)) return true;
             }
         }
         return false;

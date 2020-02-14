@@ -46,7 +46,6 @@ public class Runner extends Application {
         primaryStage.setTitle("Chess board test");
         primaryStage.setScene(scene);
         primaryStage.show();
-
     }
 
     public static void main(String[] args) {
