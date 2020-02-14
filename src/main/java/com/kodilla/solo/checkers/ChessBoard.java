@@ -1,7 +1,5 @@
 package com.kodilla.solo.checkers;
 
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-
 import java.util.ArrayList;
 
 import static java.lang.Math.abs;
@@ -80,12 +78,25 @@ public class ChessBoard {
         if (isMoveValid(x1, y1, x2, y2)) {
             Figure figure = getFigure(x1, y1);
             setFigure(x2, y2, figure);
+            checkPawnPromotion(x2,y2);
             setFigure(x1, y1, new NoneFigure());
         } else if (isMoveValidWithHit(x1, y1, x2, y2)) {
             Figure figure = getFigure(x1, y1);
             setFigure(x2, y2, figure);
+            checkPawnPromotion(x2,y2);
             setFigure(x1, y1, new NoneFigure());
             removeFigureInTheMiddle(x1, y1, x2, y2);
+        }
+    }
+
+    private void checkPawnPromotion(int x2, int y2) {
+        if (getFigure(x2, y2) instanceof PawnFigure) {
+            if (getFigure(x2, y2).getColor().equals(FigureColor.BLACK) && y2 == 7) {
+                setFigure(x2, y2, new QueenFigure(FigureColor.BLACK));
+            } else {
+                if (getFigure(x2, y2).getColor().equals(FigureColor.WHITE) && y2 == 0)
+                    setFigure(x2, y2, new QueenFigure(FigureColor.WHITE));
+            }
         }
     }
 
@@ -121,11 +132,15 @@ public class ChessBoard {
     }
 
     private boolean isMoveInGoodDirection(int x1, int y1, int x2, int y2) {
-        if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && (getFigure(x1, y1) instanceof PawnFigure)) {
-            if (y1 < y2) return true;
+        if (getFigure(x1, y1) instanceof QueenFigure) {
+            return true;
         } else {
-            if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE) && (getFigure(x1, y1) instanceof PawnFigure)) {
-                if (y1 > y2) return true;
+            if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && (getFigure(x1, y1) instanceof PawnFigure)) {
+                if (y1 < y2) return true;
+            } else {
+                if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE) && (getFigure(x1, y1) instanceof PawnFigure)) {
+                    if (y1 > y2) return true;
+                }
             }
         }
         return false;
