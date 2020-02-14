@@ -79,7 +79,35 @@ public class ChessBoard {
             Figure figure = getFigure(x1, y1);
             setFigure(x2, y2, figure);
             setFigure(x1, y1, new NoneFigure());
+        } else if (isMoveValidWithHit(x1, y1, x2, y2)) {
+            Figure figure = getFigure(x1, y1);
+            setFigure(x2, y2, figure);
+            setFigure(x1, y1, new NoneFigure());
+            removeFigureInTheMiddle(x1, y1, x2, y2);
         }
+    }
+
+    private void removeFigureInTheMiddle(int x1, int y1, int x2, int y2) {
+        System.out.println("removing");
+    }
+
+    private boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
+        boolean result = true;
+        result = result && isMoveToEmptyField(x2, y2);
+        result = result && isThereFigureToHit(x1, y1, x2, y2);
+        return result;
+    }
+
+    private boolean isThereFigureToHit(int x1, int y1, int x2, int y2) {
+        Figure middleFigure = getFigure((x1 + x2) / 2, (y1 + y2) / 2);
+        if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK)) {
+            if (middleFigure.equals(FigureColor.WHITE)) return true;
+        } else {
+            if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE)) {
+                if (middleFigure.equals(FigureColor.BLACK)) return true;
+            }
+        }
+        return false;
     }
 
     private boolean isMoveValid(int x1, int y1, int x2, int y2) {
@@ -92,10 +120,10 @@ public class ChessBoard {
 
     private boolean isMoveInGoodDirection(int x1, int y1, int x2, int y2) {
         if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && (getFigure(x1, y1) instanceof PawnFigure)) {
-            if (y1<y2) return true;
+            if (y1 < y2) return true;
         } else {
             if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE) && (getFigure(x1, y1) instanceof PawnFigure)) {
-                if (y1>y2) return true;
+                if (y1 > y2) return true;
             }
         }
         return false;
