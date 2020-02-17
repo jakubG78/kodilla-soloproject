@@ -106,9 +106,10 @@ public class ChessBoard {
 
     private boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
         boolean result = true;
+        result = result && isMoveToEmptyField(x2, y2);
         if (getFigure(x1, y1) instanceof PawnFigure) {
-            result = result && isMoveToEmptyField(x2, y2);
             result = result && isThereFigureToHit(x1, y1, x2, y2);
+            result = result && isMoveDiagonal(x1,y1,x2,y2);
         } else {
             if (getFigure(x1, y1) instanceof QueenFigure) {
                 result = result && isMoveDiagonal(x1, y1, x2, y2);
@@ -167,34 +168,24 @@ public class ChessBoard {
     }
 
     private boolean isMoveDiagonal(int x1, int y1, int x2, int y2) {
-        if (abs(x1 - x2) == abs(y1 - y2)) return true;
+        if ((abs(x1 - x2) == abs(y1 - y2)) && (abs(x1 - x2) != 0)) return true;
         else return false;
     }
 
     private boolean isMovePathOpen(int x1, int y1, int x2, int y2) {
-        int pathSize = abs(x1 - x2);
-        boolean pathOpen = true;
-        for (int i = 1; i < pathSize; i++) {
-            if (x1 < x2 && y1 < y2) {
-                pathOpen = pathOpen && (getFigure(x1 + 1, y1 + 1) instanceof NoneFigure);
-            } else {
-                if (x1 < x2 && y1 > y2) {
-                    pathOpen = pathOpen && (getFigure(x1 + 1, y1 - 1) instanceof NoneFigure);
-                } else {
-                    if (x1 > x2 && y1 > y2) {
-                        pathOpen = pathOpen && (getFigure(x1 - 1, y1 - 1) instanceof NoneFigure);
-                    } else {
-                        pathOpen = pathOpen && (getFigure(x1 - 1, y1 + 1) instanceof NoneFigure);
-                    }
-                }
-            }
+        int dX = (x2 - x1)/(abs(x2-x1));
+        int dY = (y2 - y1)/(abs(y2-y1));
+        int yTemp = y1;
+        boolean result = true;
+        for (int xTemp = x1+dX; xTemp != x2; xTemp += dX) {
+            yTemp = yTemp + dY;
+            result = result && (getFigure(xTemp, yTemp) instanceof NoneFigure);
         }
-        return pathOpen;
+        return result;
     }
 
     private boolean isMoveToEmptyField(int x2, int y2) {
         if (getFigure(x2, y2) instanceof NoneFigure) return true;
         else return false;
     }
-
 }
