@@ -43,7 +43,7 @@ public class Runner extends Application {
             System.out.println(x+","+y);
             game.click(x,y);
         });
-        primaryStage.setTitle("Chess board test");
+        primaryStage.setTitle("Checkers v.06");
         primaryStage.setScene(scene);
         primaryStage.show();
     }

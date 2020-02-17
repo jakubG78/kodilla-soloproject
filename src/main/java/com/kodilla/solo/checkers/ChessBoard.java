@@ -18,7 +18,7 @@ public class ChessBoard {
         }
         for (int n = 0; n < 8; n++) {
             if (n % 2 != 0)
-                setFigure(n, 2, new PawnFigure(FigureColor.BLACK));
+                setFigure(n, 2, new QueenFigure(FigureColor.BLACK));
         }
         for (int n = 0; n < 8; n++) {
             if (n % 2 == 0)
@@ -78,12 +78,12 @@ public class ChessBoard {
         if (isMoveValid(x1, y1, x2, y2)) {
             Figure figure = getFigure(x1, y1);
             setFigure(x2, y2, figure);
-            checkPawnPromotion(x2,y2);
+            checkPawnPromotion(x2, y2);
             setFigure(x1, y1, new NoneFigure());
         } else if (isMoveValidWithHit(x1, y1, x2, y2)) {
             Figure figure = getFigure(x1, y1);
             setFigure(x2, y2, figure);
-            checkPawnPromotion(x2,y2);
+            checkPawnPromotion(x2, y2);
             setFigure(x1, y1, new NoneFigure());
             removeFigureInTheMiddle(x1, y1, x2, y2);
         }
@@ -106,8 +106,17 @@ public class ChessBoard {
 
     private boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
         boolean result = true;
-        result = result && isMoveToEmptyField(x2, y2);
-        result = result && isThereFigureToHit(x1, y1, x2, y2);
+        if (getFigure(x1, y1) instanceof PawnFigure) {
+            result = result && isMoveToEmptyField(x2, y2);
+            result = result && isThereFigureToHit(x1, y1, x2, y2);
+        } else {
+            if (getFigure(x1, y1) instanceof QueenFigure) {
+                result = result && isMoveDiagonal(x1, y1, x2, y2);
+                result = result && isMovePathOpen(x1, y1, x2, y2);
+            } else {
+                result = false;
+            }
+        }
         return result;
     }
 
@@ -126,21 +135,27 @@ public class ChessBoard {
     private boolean isMoveValid(int x1, int y1, int x2, int y2) {
         boolean result = true;
         result = result && isMoveToEmptyField(x2, y2);
-        result = result && isMoveInGoodDirection(x1, y1, x2, y2);
-        result = result && isMoveOneBoxDiagonal(x1, y1, x2, y2);
+        if (getFigure(x1, y1) instanceof PawnFigure) {
+            result = result && isMoveInGoodDirection(x1, y1, x2, y2);
+            result = result && isMoveOneBoxDiagonal(x1, y1, x2, y2);
+        } else {
+            if (getFigure(x1, y1) instanceof QueenFigure) {
+                result = result && isMoveDiagonal(x1, y1, x2, y2);
+                result = result && isMovePathOpen(x1, y1, x2, y2);
+            } else {
+                result = false;
+            }
+        }
         return result;
     }
 
+
     private boolean isMoveInGoodDirection(int x1, int y1, int x2, int y2) {
-        if (getFigure(x1, y1) instanceof QueenFigure) {
-            return true;
+        if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && (getFigure(x1, y1) instanceof PawnFigure)) {
+            if (y1 < y2) return true;
         } else {
-            if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && (getFigure(x1, y1) instanceof PawnFigure)) {
-                if (y1 < y2) return true;
-            } else {
-                if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE) && (getFigure(x1, y1) instanceof PawnFigure)) {
-                    if (y1 > y2) return true;
-                }
+            if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE) && (getFigure(x1, y1) instanceof PawnFigure)) {
+                if (y1 > y2) return true;
             }
         }
         return false;
@@ -149,6 +164,32 @@ public class ChessBoard {
     private boolean isMoveOneBoxDiagonal(int x1, int y1, int x2, int y2) {
         if (abs(x1 - x2) == 1 && abs(y1 - y2) == 1) return true;
         else return false;
+    }
+
+    private boolean isMoveDiagonal(int x1, int y1, int x2, int y2) {
+        if (abs(x1 - x2) == abs(y1 - y2)) return true;
+        else return false;
+    }
+
+    private boolean isMovePathOpen(int x1, int y1, int x2, int y2) {
+        int pathSize = abs(x1 - x2);
+        boolean pathOpen = true;
+        for (int i = 1; i < pathSize; i++) {
+            if (x1 < x2 && y1 < y2) {
+                pathOpen = pathOpen && (getFigure(x1 + 1, y1 + 1) instanceof NoneFigure);
+            } else {
+                if (x1 < x2 && y1 > y2) {
+                    pathOpen = pathOpen && (getFigure(x1 + 1, y1 - 1) instanceof NoneFigure);
+                } else {
+                    if (x1 > x2 && y1 > y2) {
+                        pathOpen = pathOpen && (getFigure(x1 - 1, y1 - 1) instanceof NoneFigure);
+                    } else {
+                        pathOpen = pathOpen && (getFigure(x1 - 1, y1 + 1) instanceof NoneFigure);
+                    }
+                }
+            }
+        }
+        return pathOpen;
     }
 
     private boolean isMoveToEmptyField(int x2, int y2) {
