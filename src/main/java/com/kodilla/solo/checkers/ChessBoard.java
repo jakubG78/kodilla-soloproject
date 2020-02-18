@@ -85,7 +85,7 @@ public class ChessBoard {
             setFigure(x2, y2, figure);
             checkPawnPromotion(x2, y2);
             setFigure(x1, y1, new NoneFigure());
-            removeFigureInTheMiddle(x1, y1, x2, y2);
+            removeHitFigure(x1, y1, x2, y2);
         }
     }
 
@@ -100,8 +100,10 @@ public class ChessBoard {
         }
     }
 
-    private void removeFigureInTheMiddle(int x1, int y1, int x2, int y2) {
-        setFigure((x1 + x2) / 2, (y1 + y2) / 2, new NoneFigure());
+    private void removeHitFigure(int x1, int y1, int x2, int y2) {
+        int dX = (x2 - x1 > 0) ? 1 : -1;
+        int dY = (y2 - y1 > 0) ? 1 : -1;
+        setFigure(x2 - dX, y2 - dY, new NoneFigure());
     }
 
     private boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
@@ -109,11 +111,11 @@ public class ChessBoard {
         result = result && isMoveToEmptyField(x2, y2);
         if (getFigure(x1, y1) instanceof PawnFigure) {
             result = result && isThereFigureToHit(x1, y1, x2, y2);
-            result = result && isMoveDiagonal(x1,y1,x2,y2);
+            result = result && isMoveDiagonal(x1, y1, x2, y2);
         } else {
             if (getFigure(x1, y1) instanceof QueenFigure) {
                 result = result && isMoveDiagonal(x1, y1, x2, y2);
-                result = result && isMovePathOpen(x1, y1, x2, y2);
+                result = result && isHitPathOpen(x1, y1, x2, y2);
             } else {
                 result = false;
             }
@@ -121,14 +123,25 @@ public class ChessBoard {
         return result;
     }
 
+    private boolean isHitPathOpen(int x1, int y1, int x2, int y2) {
+        boolean result = true;
+        int dX = (x2 - x1 > 0) ? 1 : -1;
+        int dY = (y2 - y1 > 0) ? 1 : -1;
+        int yTemp = y1;
+        for (int xTemp = x1 + dX; xTemp != x2 - dX; xTemp += dX) {
+            yTemp = yTemp + dY;
+            result = result && (getFigure(xTemp, yTemp) instanceof NoneFigure);
+        }
+        return result;
+    }
+
     private boolean isThereFigureToHit(int x1, int y1, int x2, int y2) {
         Figure hitFigure = getFigure((x1 + x2) / 2, (y1 + y2) / 2);
-        if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK)) {
-            if (hitFigure.getColor().equals(FigureColor.WHITE)) return true;
+        if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && hitFigure.getColor().equals(FigureColor.WHITE)) {
+            return true;
         } else {
-            if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE)) {
-                if (hitFigure.getColor().equals(FigureColor.BLACK)) return true;
-            }
+            if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE) && hitFigure.getColor().equals(FigureColor.BLACK))
+                return true;
         }
         return false;
     }
@@ -173,11 +186,11 @@ public class ChessBoard {
     }
 
     private boolean isMovePathOpen(int x1, int y1, int x2, int y2) {
-        int dX = (x2 - x1)/(abs(x2-x1));
-        int dY = (y2 - y1)/(abs(y2-y1));
+        int dX = (x2 - x1 > 0) ? 1 : -1;
+        int dY = (y2 - y1 > 0) ? 1 : -1;
         int yTemp = y1;
         boolean result = true;
-        for (int xTemp = x1+dX; xTemp != x2; xTemp += dX) {
+        for (int xTemp = x1 + dX; xTemp != x2; xTemp += dX) {
             yTemp = yTemp + dY;
             result = result && (getFigure(xTemp, yTemp) instanceof NoneFigure);
         }
