@@ -32,7 +32,7 @@ public class Runner extends Application {
         }
 
         Scene scene = new Scene(grid, 480, 480, Color.BLACK);
-        ChessBoard board = new ChessBoard();
+        ChessBoard board = new ChessBoard(FigureColor.WHITE);
         board.initBoard();
         Game game = new Game(board, grid);
         game.displayBoard();
@@ -43,7 +43,7 @@ public class Runner extends Application {
             System.out.println(x+","+y);
             game.click(x,y);
         });
-        primaryStage.setTitle("Checkers v.06");
+        primaryStage.setTitle("Checkers v.07");
         primaryStage.setScene(scene);
         primaryStage.show();
     }

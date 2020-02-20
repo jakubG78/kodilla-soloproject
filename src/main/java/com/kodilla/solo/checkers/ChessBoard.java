@@ -1,11 +1,11 @@
 package com.kodilla.solo.checkers;
 
 import java.util.ArrayList;
-
 import static java.lang.Math.abs;
 
 public class ChessBoard {
     private ArrayList<BoardRow> theBoard = new ArrayList<>();
+    private FigureColor whoseMoveIsIt;
 
     public void initBoard() {
         for (int n = 0; n < 8; n++) {
@@ -18,7 +18,7 @@ public class ChessBoard {
         }
         for (int n = 0; n < 8; n++) {
             if (n % 2 != 0)
-                setFigure(n, 2, new QueenFigure(FigureColor.BLACK));
+                setFigure(n, 2, new PawnFigure(FigureColor.BLACK));
         }
         for (int n = 0; n < 8; n++) {
             if (n % 2 == 0)
@@ -34,7 +34,8 @@ public class ChessBoard {
         }
     }
 
-    public ChessBoard() {
+    public ChessBoard(FigureColor whoseMoveIsIt) {
+        this.whoseMoveIsIt = whoseMoveIsIt;
         for (int n = 0; n < 8; n++) {
             theBoard.add(new BoardRow());
         }
@@ -80,75 +81,21 @@ public class ChessBoard {
             setFigure(x2, y2, figure);
             checkPawnPromotion(x2, y2);
             setFigure(x1, y1, new NoneFigure());
+            changeActiveSide();
         } else if (isMoveValidWithHit(x1, y1, x2, y2)) {
             Figure figure = getFigure(x1, y1);
             setFigure(x2, y2, figure);
             checkPawnPromotion(x2, y2);
             setFigure(x1, y1, new NoneFigure());
             removeHitFigure(x1, y1, x2, y2);
+            changeActiveSide();
         }
-    }
-
-    private void checkPawnPromotion(int x2, int y2) {
-        if (getFigure(x2, y2) instanceof PawnFigure) {
-            if (getFigure(x2, y2).getColor().equals(FigureColor.BLACK) && y2 == 7) {
-                setFigure(x2, y2, new QueenFigure(FigureColor.BLACK));
-            } else {
-                if (getFigure(x2, y2).getColor().equals(FigureColor.WHITE) && y2 == 0)
-                    setFigure(x2, y2, new QueenFigure(FigureColor.WHITE));
-            }
-        }
-    }
-
-    private void removeHitFigure(int x1, int y1, int x2, int y2) {
-        int dX = (x2 - x1 > 0) ? 1 : -1;
-        int dY = (y2 - y1 > 0) ? 1 : -1;
-        setFigure(x2 - dX, y2 - dY, new NoneFigure());
-    }
-
-    private boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
-        boolean result = true;
-        result = result && isMoveToEmptyField(x2, y2);
-        if (getFigure(x1, y1) instanceof PawnFigure) {
-            result = result && isThereFigureToHit(x1, y1, x2, y2);
-            result = result && isMoveDiagonal(x1, y1, x2, y2);
-        } else {
-            if (getFigure(x1, y1) instanceof QueenFigure) {
-                result = result && isMoveDiagonal(x1, y1, x2, y2);
-                result = result && isHitPathOpen(x1, y1, x2, y2);
-            } else {
-                result = false;
-            }
-        }
-        return result;
-    }
-
-    private boolean isHitPathOpen(int x1, int y1, int x2, int y2) {
-        boolean result = true;
-        int dX = (x2 - x1 > 0) ? 1 : -1;
-        int dY = (y2 - y1 > 0) ? 1 : -1;
-        int yTemp = y1;
-        for (int xTemp = x1 + dX; xTemp != x2 - dX; xTemp += dX) {
-            yTemp = yTemp + dY;
-            result = result && (getFigure(xTemp, yTemp) instanceof NoneFigure);
-        }
-        return result;
-    }
-
-    private boolean isThereFigureToHit(int x1, int y1, int x2, int y2) {
-        Figure hitFigure = getFigure((x1 + x2) / 2, (y1 + y2) / 2);
-        if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && hitFigure.getColor().equals(FigureColor.WHITE)) {
-            return true;
-        } else {
-            if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE) && hitFigure.getColor().equals(FigureColor.BLACK))
-                return true;
-        }
-        return false;
     }
 
     private boolean isMoveValid(int x1, int y1, int x2, int y2) {
         boolean result = true;
         result = result && isMoveToEmptyField(x2, y2);
+        result = result && isPlayerCorrect(x1,y1);
         if (getFigure(x1, y1) instanceof PawnFigure) {
             result = result && isMoveInGoodDirection(x1, y1, x2, y2);
             result = result && isMoveOneBoxDiagonal(x1, y1, x2, y2);
@@ -163,6 +110,14 @@ public class ChessBoard {
         return result;
     }
 
+    private boolean isMoveToEmptyField(int x2, int y2) {
+        if (getFigure(x2, y2) instanceof NoneFigure) return true;
+        else return false;
+    }
+
+    private boolean isPlayerCorrect(int x1, int y1) {
+        return getFigure(x1,y1).getColor().equals(whoseMoveIsIt);
+    }
 
     private boolean isMoveInGoodDirection(int x1, int y1, int x2, int y2) {
         if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && (getFigure(x1, y1) instanceof PawnFigure)) {
@@ -197,8 +152,71 @@ public class ChessBoard {
         return result;
     }
 
-    private boolean isMoveToEmptyField(int x2, int y2) {
-        if (getFigure(x2, y2) instanceof NoneFigure) return true;
-        else return false;
+    private void checkPawnPromotion(int x2, int y2) {
+        if (getFigure(x2, y2) instanceof PawnFigure) {
+            if (getFigure(x2, y2).getColor().equals(FigureColor.BLACK) && y2 == 7) {
+                setFigure(x2, y2, new QueenFigure(FigureColor.BLACK));
+            } else {
+                if (getFigure(x2, y2).getColor().equals(FigureColor.WHITE) && y2 == 0)
+                    setFigure(x2, y2, new QueenFigure(FigureColor.WHITE));
+            }
+        }
     }
+
+    private boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
+        boolean result = true;
+        result = result && isMoveToEmptyField(x2, y2);
+        result = result && isPlayerCorrect(x1,y1);
+        if (getFigure(x1, y1) instanceof PawnFigure) {
+            result = result && isThereValidFigureToHit(x1, y1, x2, y2);
+            result = result && isMoveDiagonal(x1, y1, x2, y2);
+        } else {
+            if (getFigure(x1, y1) instanceof QueenFigure) {
+                result = result && isMoveDiagonal(x1, y1, x2, y2);
+                result = result && isHitPathOpen(x1, y1, x2, y2);
+                result = result && isThereValidFigureToHit(x1, y1, x2, y2);
+            } else {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    private boolean isThereValidFigureToHit(int x1, int y1, int x2, int y2) {
+        int dX = (x2 - x1 > 0) ? 1 : -1;
+        int dY = (y2 - y1 > 0) ? 1 : -1;
+        Figure hitFigure = getFigure(x2 - dX, y2 - dY);
+        if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && hitFigure.getColor().equals(FigureColor.WHITE)) {
+            return true;
+        } else {
+            if (getFigure(x1, y1).getColor().equals(FigureColor.WHITE) && hitFigure.getColor().equals(FigureColor.BLACK))
+                return true;
+        }
+        return false;
+    }
+
+    private void removeHitFigure(int x1, int y1, int x2, int y2) {
+        int dX = (x2 - x1 > 0) ? 1 : -1;
+        int dY = (y2 - y1 > 0) ? 1 : -1;
+        setFigure(x2 - dX, y2 - dY, new NoneFigure());
+    }
+
+    private boolean isHitPathOpen(int x1, int y1, int x2, int y2) {
+        boolean result = true;
+        int dX = (x2 - x1 > 0) ? 1 : -1;
+        int dY = (y2 - y1 > 0) ? 1 : -1;
+        int yTemp = y1;
+        for (int xTemp = x1 + dX; xTemp != x2 - dX; xTemp += dX) {
+            yTemp = yTemp + dY;
+            result = result && (getFigure(xTemp, yTemp) instanceof NoneFigure);
+        }
+        return result;
+    }
+
+    private void changeActiveSide() {
+        if (whoseMoveIsIt == FigureColor.WHITE) whoseMoveIsIt = FigureColor.BLACK;
+        else whoseMoveIsIt = FigureColor.WHITE;
+        System.out.println("It is now " + whoseMoveIsIt + " turn to move!");
+    }
+
 }

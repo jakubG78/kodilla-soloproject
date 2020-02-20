@@ -10,6 +10,7 @@ public class Game {
     private GridPane gridPane;
     private int oldX = -1;
     private int oldY = -1;
+    private FigureColor wohoseMoveIsIt;
 
     public Game(ChessBoard board, GridPane gridPane) {
         this.board = board;
