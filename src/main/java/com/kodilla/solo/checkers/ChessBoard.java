@@ -1,11 +1,16 @@
 package com.kodilla.solo.checkers;
 
 import java.util.ArrayList;
+
 import static java.lang.Math.abs;
 
 public class ChessBoard {
     private ArrayList<BoardRow> theBoard = new ArrayList<>();
-    private FigureColor whoseMoveIsIt;
+    private FigureColor whoseMoveIsIt = FigureColor.WHITE;
+
+    public FigureColor getWhoseMoveIsIt() {
+        return whoseMoveIsIt;
+    }
 
     public void initBoard() {
         for (int n = 0; n < 8; n++) {
@@ -34,8 +39,7 @@ public class ChessBoard {
         }
     }
 
-    public ChessBoard(FigureColor whoseMoveIsIt) {
-        this.whoseMoveIsIt = whoseMoveIsIt;
+    public ChessBoard() {
         for (int n = 0; n < 8; n++) {
             theBoard.add(new BoardRow());
         }
@@ -92,10 +96,10 @@ public class ChessBoard {
         }
     }
 
-    private boolean isMoveValid(int x1, int y1, int x2, int y2) {
+    public boolean isMoveValid(int x1, int y1, int x2, int y2) {
         boolean result = true;
         result = result && isMoveToEmptyField(x2, y2);
-        result = result && isPlayerCorrect(x1,y1);
+        result = result && isPlayerCorrect(x1, y1);
         if (getFigure(x1, y1) instanceof PawnFigure) {
             result = result && isMoveInGoodDirection(x1, y1, x2, y2);
             result = result && isMoveOneBoxDiagonal(x1, y1, x2, y2);
@@ -116,7 +120,7 @@ public class ChessBoard {
     }
 
     private boolean isPlayerCorrect(int x1, int y1) {
-        return getFigure(x1,y1).getColor().equals(whoseMoveIsIt);
+        return getFigure(x1, y1).getColor().equals(whoseMoveIsIt);
     }
 
     private boolean isMoveInGoodDirection(int x1, int y1, int x2, int y2) {
@@ -163,10 +167,10 @@ public class ChessBoard {
         }
     }
 
-    private boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
+    public boolean isMoveValidWithHit(int x1, int y1, int x2, int y2) {
         boolean result = true;
         result = result && isMoveToEmptyField(x2, y2);
-        result = result && isPlayerCorrect(x1,y1);
+        result = result && isPlayerCorrect(x1, y1);
         if (getFigure(x1, y1) instanceof PawnFigure) {
             result = result && isThereValidFigureToHit(x1, y1, x2, y2);
             result = result && isMoveDiagonal(x1, y1, x2, y2);
@@ -185,7 +189,10 @@ public class ChessBoard {
     private boolean isThereValidFigureToHit(int x1, int y1, int x2, int y2) {
         int dX = (x2 - x1 > 0) ? 1 : -1;
         int dY = (y2 - y1 > 0) ? 1 : -1;
-        Figure hitFigure = getFigure(x2 - dX, y2 - dY);
+        Figure hitFigure;
+        if (x2 - dX > 0 && x2 - dX < 8 && y2 - dY > 0 && y2 - dY < 8) hitFigure = getFigure(x2 - dX, y2 - dY);
+        else hitFigure = new Figure(FigureColor.NONE);
+
         if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && hitFigure.getColor().equals(FigureColor.WHITE)) {
             return true;
         } else {
@@ -219,4 +226,21 @@ public class ChessBoard {
         System.out.println("It is now " + whoseMoveIsIt + " turn to move!");
     }
 
+    public int calculateBoardValue() {
+        int score = 0;
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                Figure figure = getFigure(x, y);
+                if (figure.getColor() == FigureColor.BLACK && figure instanceof PawnFigure)
+                    score = score + y + 1;
+                else if (figure.getColor() == FigureColor.BLACK && figure instanceof QueenFigure)
+                    score = score + 20;
+                else if (figure.getColor() == FigureColor.WHITE && figure instanceof PawnFigure)
+                    score = score - abs(7 - y);
+                else if (figure.getColor() == FigureColor.WHITE && figure instanceof QueenFigure)
+                    score = score - 20;
+            }
+        }
+        return score;
+    }
 }

@@ -8,13 +8,17 @@ public class Game {
 
     private ChessBoard board;
     private GridPane gridPane;
+    private GameType gameType;
+    private FigureColor computerFiguresColor;
     private int oldX = -1;
     private int oldY = -1;
-    private FigureColor wohoseMoveIsIt;
+    AI tempAI = new AI(board, computerFiguresColor);
 
-    public Game(ChessBoard board, GridPane gridPane) {
+    public Game(ChessBoard board, GridPane gridPane, GameType gameType, FigureColor computerFiguresColor) {
         this.board = board;
         this.gridPane = gridPane;
+        this.gameType = gameType;
+        this.computerFiguresColor = computerFiguresColor;
     }
 
     public void displayBoard() {
@@ -35,14 +39,34 @@ public class Game {
     }
 
     public void click(int x, int y) {
-        if (oldX == -1) {
-            oldX=x;
-            oldY=y;
-        } else {
-            board.move(oldX,oldY, x, y);
-            oldX = -1;
-            oldY = -1;
-            displayBoard();
+        if(gameType.equals(GameType.HUMANvsHUMAN)) {
+            if (oldX == -1) {
+                oldX = x;
+                oldY = y;
+            } else {
+                board.move(oldX, oldY, x, y);
+                oldX = -1;
+                oldY = -1;
+                displayBoard();
+                System.out.println("Current board value: " + board.calculateBoardValue());
+            }
+        }
+        if(gameType.equals(GameType.HUMANvsCOMPUTER)) {
+            if (board.getWhoseMoveIsIt().equals(computerFiguresColor)) {
+                board.move(tempAI.selectBestMove().getX1(), tempAI.selectBestMove().getY1(), tempAI.selectBestMove().getX2(), tempAI.selectBestMove().getY2());
+            } else {
+                if (oldX == -1) {
+                    oldX = x;
+                    oldY = y;
+                } else {
+                    ;
+                    board.move(oldX, oldY, x, y);
+                    oldX = -1;
+                    oldY = -1;
+                    displayBoard();
+                    System.out.println("Current board value: " + board.calculateBoardValue());
+                }
+            }
         }
     }
 }
