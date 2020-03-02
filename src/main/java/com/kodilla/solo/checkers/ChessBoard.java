@@ -8,6 +8,24 @@ public class ChessBoard {
     private ArrayList<BoardRow> theBoard = new ArrayList<>();
     private FigureColor whoseMoveIsIt = FigureColor.WHITE;
 
+    public ChessBoard() {
+        for (int n = 0; n < 8; n++) {
+            theBoard.add(new BoardRow());
+        }
+    }
+
+    public ChessBoard(ChessBoard board) {
+        for (int n = 0; n < 8; n++) {
+            theBoard.add(new BoardRow());
+        }
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                Figure tempFigure = board.getFigure(x, y);
+                this.setFigure(x, y, tempFigure);
+            }
+        }
+    }
+
     public FigureColor getWhoseMoveIsIt() {
         return whoseMoveIsIt;
     }
@@ -36,12 +54,6 @@ public class ChessBoard {
         for (int n = 0; n < 8; n++) {
             if (n % 2 == 0)
                 setFigure(n, 7, new PawnFigure(FigureColor.WHITE));
-        }
-    }
-
-    public ChessBoard() {
-        for (int n = 0; n < 8; n++) {
-            theBoard.add(new BoardRow());
         }
     }
 
@@ -190,9 +202,13 @@ public class ChessBoard {
         int dX = (x2 - x1 > 0) ? 1 : -1;
         int dY = (y2 - y1 > 0) ? 1 : -1;
         Figure hitFigure;
-        if (x2 - dX > 0 && x2 - dX < 8 && y2 - dY > 0 && y2 - dY < 8) hitFigure = getFigure(x2 - dX, y2 - dY);
-        else hitFigure = new Figure(FigureColor.NONE);
-
+        if(getFigure(x1,y1) instanceof PawnFigure){
+            if (x2 - dX > 0 && x2 - dX < 8 && y2 - dY > 0 && y2 - dY < 8 && abs(x1 - x2) == 2 && abs(y1 - y2) == 2) hitFigure = getFigure(x2 - dX, y2 - dY);
+            else hitFigure = new Figure(FigureColor.NONE);
+        } else {
+            if (x2 - dX > 0 && x2 - dX < 8 && y2 - dY > 0 && y2 - dY < 8) hitFigure = getFigure(x2 - dX, y2 - dY);
+            else hitFigure = new Figure(FigureColor.NONE);
+        }
         if (getFigure(x1, y1).getColor().equals(FigureColor.BLACK) && hitFigure.getColor().equals(FigureColor.WHITE)) {
             return true;
         } else {
