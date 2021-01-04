@@ -250,11 +250,11 @@ public class ChessBoard {
                 if (figure.getColor() == FigureColor.BLACK && figure instanceof PawnFigure)
                     score = score + y + 1;
                 else if (figure.getColor() == FigureColor.BLACK && figure instanceof QueenFigure)
-                    score = score + 20;
+                    score = score + 50;
                 else if (figure.getColor() == FigureColor.WHITE && figure instanceof PawnFigure)
                     score = score - abs(7 - y);
                 else if (figure.getColor() == FigureColor.WHITE && figure instanceof QueenFigure)
-                    score = score - 20;
+                    score = score - 50;
             }
         }
         return score;

@@ -62,8 +62,12 @@ public class Game {
                 oldY = -1;
                 displayBoard();
                 System.out.println("Current board value: " + board.calculateBoardValue());
-                Move move = tempAI.selectBestMove();
-                board.move(move.getX1(), move.getY1(), move.getX2(), move.getY2());
+                if(tempAI.selectBestMove()!= null) {
+                    Move move = tempAI.selectBestMove();
+                    board.move(move.getX1(), move.getY1(), move.getX2(), move.getY2());
+                }else {
+                    System.out.println("Game over");
+                }
                 displayBoard();
             }
         }
